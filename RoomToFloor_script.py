@@ -58,15 +58,17 @@ def get_selected_elements():
 
 # Select all rooms from Active project
 def select_all_rooms():
+    global doc
     return FilteredElementCollector(doc).WherePasses(RoomFilter()).ToElements()
 
 
-# Edit all rooms in project - automaticly fills Floor Finish parameter
+# Edit all rooms in project - automatic fills Floor Finish parameter
 def edit_rooms_floor_finish():
+    global doc
     rooms = select_all_rooms()
-    for room in rooms:  # Control if the Floor finish is set
+    for room in rooms:
         room_floor_finish = room.get_Parameter(BuiltInParameter.ROOM_FINISH_FLOOR).AsString()
-        if room_floor_finish == None:
+        if room_floor_finish == None or room_floor_finish == "":
             transaction = Transaction(doc, 'Add Undefined to room param transaction')
             transaction.Start()
             p = room.LookupParameter('Floor Finish')  # Sets parameter of the None Floor Finish to "Undefined"
@@ -74,8 +76,12 @@ def edit_rooms_floor_finish():
             transaction.Commit()
 
 
+edit_rooms_floor_finish() # Just in case, there are empty fields
+
+
 # Select all floor types from Active project
 def select_all_floor_types():
+    global doc
     return FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Floors).WhereElementIsElementType()
 
 
@@ -92,7 +98,9 @@ class Floor:
         self.boundary = boundary
         self.level_id = level_id
 
+    # TODO solve issue here * curves
     def make_floor(self):
+        global doc
         t = Transaction(doc, 'Floor Creator')
         t.Start()
         floor_curves = CurveArray()
@@ -106,49 +114,30 @@ class Floor:
 
 
 # Code:
-edit_rooms_floor_finish() # Just in case, there are empty fields
-rooms = select_all_rooms()
+
+
 
 floor_dict = {}  # {'name':'id'} Make floor type dictionary
 floor_types = select_all_floor_types()
 for floor_type in floor_types:
     floor_dict[Element.Name.GetValue(floor_type)] = floor_type.Id
-    if Element.Name.GetValue(floor_type) == 'Undefined':
-        uni_floor_type = floor_type
-        print('test01')
-        print(uni_floor_type)
 
-new_floors = []  # Make list with Floor objects
+room_boundary_options = SpatialElementBoundaryOptions()
+rooms = select_all_rooms()
 
-for room in select_all_rooms():  # for all rooms - get their boundary and name of the floor finish
+for room in rooms:  # for all rooms - get their boundary and name of the floor finish
     room_level_id = room.Level.Id
-    print(room_level_id)
     room_boundary = room.GetBoundarySegments(room_boundary_options)[0]
-    print(room_boundary)
     room_floor_finish = room.get_Parameter(BuiltInParameter.ROOM_FINISH_FLOOR).AsString()
-    print(room_floor_finish)
-    # If name of the floor is not in dictionary, duplicate floor and add to dictionary
     if room_floor_finish not in floor_dict:
-        t = Transaction(doc, 'Floor type duplicate')
+        t = Transaction(doc, 'duplicate')
         t.Start()
-        print('test03')
-        print(room_floor_finish)
-        # upravit duplikaci podlahz....
-
-        new_floor_type = uni_floor_type.Duplicate("Final Floor - " + room_floor_finish)
-        print('test04')
-        print(room_floor_finish)
-        add_floor_type(floor_dict, new_floor_type)
+        floor_type = doc.GetElement(floor_dict.get('Undefined'))
+        new_floor_type = floor_type.Duplicate(room_floor_finish)
+        add_floor_type(floor_dict,new_floor_type)
         t.Commit()
-    type_id = floor_dict[room_floor_finish]
+    type_id = floor_dict.get(room_floor_finish)
     new_floor = Floor(type_id, room_boundary, room_level_id)
-    new_floors.append(new_floor)
-    print(new_floor)
-
-# Creating floors
-# for new_floor in new_floors:
-# view = make_floor(new_floor)
-
-
-# cl = List[Curve]()
-# one = uidoc.Selection.SetElelemetIds(List[ElementId](pythonElelemtIdList))
+    print('test 08')
+    new_floor.make_floor()
+    print('Finish')
