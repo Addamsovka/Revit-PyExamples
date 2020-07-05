@@ -91,15 +91,27 @@ def add_floor_type(floor_dict, new_floor_type):
     return floor_dict
 
 
-# Class floor for creating new floors from type id, boundary and level
+
 class Floor:
+    """
+    Class floor for creating new floors from type id, boundary and level
+
+    """
     def __init__(self, type_id, boundary, level_id):
         self.type_id = type_id
         self.boundary = boundary
         self.level_id = level_id
 
     # TODO solve issue here * curves
-    def make_floor(self):
+    def make_floor(self) -> None:
+        """
+        Method in class flor executes new floor
+
+        Parameters:
+            self: Floor object (type_id, boundary, level_id)
+        Returns:
+            None
+        """
         global doc
         t = Transaction(doc, 'Floor Creator')
         t.Start()
