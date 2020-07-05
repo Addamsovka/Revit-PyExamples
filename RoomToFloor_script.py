@@ -11,7 +11,7 @@ from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory, BuiltInParameter
 from Autodesk.Revit.DB import Element, XYZ, CurveArray
 from Autodesk.Revit.DB import Transaction
-from Autodesk.Revit.DB import SpatialElementBoundaryOptions, Options
+from Autodesk.Revit.DB import SpatialElementBoundaryOptions, Options, SpatialElement
 from Autodesk.Revit.DB.Architecture import RoomFilter, Room
 from Autodesk.Revit.Creation import *
 from System.Collections.Generic import List
@@ -103,21 +103,14 @@ class Floor:
         self.level_id = level_id
 
     # TODO solve issue here * curves
-    def make_floor(self) -> None:
-        """
-        Method in class flor executes new floor
-
-        Parameters:
-            self: Floor object (type_id, boundary, level_id)
-        Returns:
-            None
-        """
+    #  System.MissingMemberException: 'List[BoundarySegment]' object has no attribute 'Curve'
+    def make_floor(self):
         global doc
         t = Transaction(doc, 'Floor Creator')
         t.Start()
         floor_curves = CurveArray()
         for boundary_segment in self.boundary:
-            floor_curves.Append(boundary_segment.Curve)
+            floor_curves.Append(boundary_segment.GetCurve())
         floor_type = doc.GetElement(self.type_id)
         level = doc.GetElement(self.level_id)
         normal = XYZ.BasisZ
@@ -135,6 +128,7 @@ for floor_type in floor_types:
     floor_dict[Element.Name.GetValue(floor_type)] = floor_type.Id
 
 room_boundary_options = SpatialElementBoundaryOptions()
+# SpatialElement class -
 rooms = select_all_rooms()
 
 for room in rooms:  # for all rooms - get their boundary and name of the floor finish
@@ -150,6 +144,5 @@ for room in rooms:  # for all rooms - get their boundary and name of the floor f
         t.Commit()
     type_id = floor_dict.get(room_floor_finish)
     new_floor = Floor(type_id, room_boundary, room_level_id)
-    print('test 08')
     new_floor.make_floor()
     print('Finish')
