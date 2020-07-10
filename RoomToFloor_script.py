@@ -20,6 +20,38 @@ from System import ArgumentOutOfRangeException
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
+def main():
+    floor_dict = {}  # {'name':'id'} Make floor type dictionary
+    floor_types = select_all_floor_types()
+    for floor_type in floor_types:
+        floor_dict[Element.Name.GetValue(floor_type)] = floor_type.Id
+
+    room_boundary_options = SpatialElementBoundaryOptions()
+    # SpatialElement class -
+    rooms = select_all_rooms()
+
+    for room in rooms:  # for all rooms - get their boundary and name of the floor finish
+        room_level_id = room.Level.Id
+        room_id = room.Id
+        print(room_id)
+        room_name = room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString()
+        room_boundary = room.GetBoundarySegments(room_boundary_options)
+        if len(room_boundary) > 0:
+            room_floor_finish = room.get_Parameter(BuiltInParameter.ROOM_FINISH_FLOOR).AsString()
+            if room_floor_finish not in floor_dict:
+                t = Transaction(doc, 'duplicate')
+                t.Start()
+                floor_type = doc.GetElement(floor_dict.get('Undefined'))
+                new_floor_type = floor_type.Duplicate(room_floor_finish)
+                add_floor_type(floor_dict, new_floor_type)
+                t.Commit()
+            type_id = floor_dict.get(room_floor_finish)
+            new_floor = Floor(type_id, room_boundary[0], room_level_id)
+            new_floor.make_floor()
+            print(room_floor_finish + ' floor placed in ' + room_name + '.')
+        else:
+            print("Room boundary of " + room_name + " does not found.")
+
 
 # Help transaction wrapper
 def revit_transaction(transaction_name):
@@ -119,37 +151,7 @@ class Floor:
         t.Commit()
 
 # Code:
-
-floor_dict = {}  # {'name':'id'} Make floor type dictionary
-floor_types = select_all_floor_types()
-for floor_type in floor_types:
-    floor_dict[Element.Name.GetValue(floor_type)] = floor_type.Id
-
-room_boundary_options = SpatialElementBoundaryOptions()
-# SpatialElement class -
-rooms = select_all_rooms()
-
-for room in rooms:  # for all rooms - get their boundary and name of the floor finish
-    room_level_id = room.Level.Id
-    room_id = room.Id
-    print(room_id)
-    room_name = room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString()
-    room_boundary = room.GetBoundarySegments(room_boundary_options)
-    if len(room_boundary) > 0:
-        room_floor_finish = room.get_Parameter(BuiltInParameter.ROOM_FINISH_FLOOR).AsString()
-        if room_floor_finish not in floor_dict:
-            t = Transaction(doc, 'duplicate')
-            t.Start()
-            floor_type = doc.GetElement(floor_dict.get('Undefined'))
-            new_floor_type = floor_type.Duplicate(room_floor_finish)
-            add_floor_type(floor_dict,new_floor_type)
-            t.Commit()
-        type_id = floor_dict.get(room_floor_finish)
-        new_floor = Floor(type_id, room_boundary[0], room_level_id)
-        new_floor.make_floor()
-        print( room_floor_finish +' floor placed in ' + room_name + '.')
-    else:
-        print("Room boundary of " + room_name + " does not found.")
+main()
 
 
 
