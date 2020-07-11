@@ -11,9 +11,10 @@ from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory, BuiltIn
 from Autodesk.Revit.DB import Element, XYZ, CurveArray
 from Autodesk.Revit.DB import Transaction, ElementId, Transform, Curve, CurveArray
 from Autodesk.Revit.DB import SpatialElementBoundaryOptions, Options, SpatialElement
+from Autodesk.Revit.UI import TaskDialog
 
 doc = __revit__.ActiveUIDocument.Document
-
+uidoc = __revit__.ActiveUIDocument
 
 def main():
     # {'name':'id'} Make floor type dictionary
@@ -112,7 +113,8 @@ def add_floor_type(floor_dict, new_floor_type):
 
 # Select elements
 def get_selected_elements():
-    selection = __revit__.ActiveUIDocument # user selection
+    global uidoc
+    selection = uidoc # user selection, TODO check if works
     selection_ids = selection.GetElementIds()
     selection_size = selection_ids.Count
     if not selection_ids:
