@@ -13,22 +13,19 @@ from Autodesk.Revit.DB import Transaction, ElementId, Transform, Curve, CurveArr
 from Autodesk.Revit.DB import SpatialElementBoundaryOptions, Options, SpatialElement
 
 doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
+
 
 def main():
-    floor_dict = {}  # {'name':'id'} Make floor type dictionary
+    # {'name':'id'} Make floor type dictionary
+    floor_dict = {}
     floor_types = select_all_floor_types()
     for floor_type in floor_types:
         floor_dict[Element.Name.GetValue(floor_type)] = floor_type.Id
-
-    room_boundary_options = SpatialElementBoundaryOptions()  # SpatialElement class
-
+    # Sets room
     room_id = 269067
     room = doc.GetElement(ElementId(room_id))
-    # room_name = room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString()
-    room_boundary = room.GetBoundarySegments(room_boundary_options)[0]
-    room_level_id = room.Level.Id
     room_floor_finish = room.get_Parameter(BuiltInParameter.ROOM_FINISH_FLOOR).AsString()
+    # Checking if the floor type exists
     if room_floor_finish not in floor_dict:
         t = Transaction(doc, 'duplicate')
         t.Start()
@@ -36,6 +33,12 @@ def main():
         new_floor_type = floor_type.Duplicate(room_floor_finish)
         add_floor_type(floor_dict, new_floor_type)
         t.Commit()
+    # SpatialElement class
+    room_boundary_options = SpatialElementBoundaryOptions()
+    # Gets room boundary, name and level and force to make floor if boundary exists
+    room_boundary = room.GetBoundarySegments(room_boundary_options)[0]
+    room_name = room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString()
+    room_level_id = room.Level.Id
     if len(room_boundary) > 0:
         type_id = floor_dict.get(room_floor_finish)
         new_floor = Floor(type_id, room_boundary, room_level_id)
@@ -47,8 +50,16 @@ def main():
 
 class Floor:
     """
-    Class floor for creating new floors from type id, boundary and level
+    Represents floor object, made from room type_id, boundary and level_id.
 
+    Parameters
+        ----------
+        type_id : floor type Id
+            Id of the floor type element
+        boundary : BoundarySegments
+            Boundary of a room to make boundary of a floor
+        level_id : room level.Id
+            Sets level of the floor
     """
     def __init__(self, type_id, boundary, level_id):
         self.type_id = type_id
@@ -56,6 +67,11 @@ class Floor:
         self.level_id = level_id
 
     def boundary_to_array(self, boundary):
+        """
+        Create CurveArray from room boundary given.
+        Check if boundary on Z=0, if not, puts in boundary there.
+        :return: CurveArray -> can be used for make_floor
+        """
         floor_curves = CurveArray()
         if boundary[0].GetCurve().Z != 0:
             for boundy in self.boundary:
@@ -71,10 +87,13 @@ class Floor:
         return floor_curves
 
     def make_floor(self):
+        """
+        Creates floor
+        """
         global doc
         t = Transaction(doc, 'Floor Creator')
         t.Start()
-        floor_curves = self.boundary_to_array(self.boundary) # how is it with self?
+        floor_curves = self.boundary_to_array(self.boundary)
         floor_type = doc.GetElement(self.type_id)
         level = doc.GetElement(self.level_id)
         normal = XYZ.BasisZ
@@ -90,6 +109,18 @@ def select_all_floor_types():
 def add_floor_type(floor_dict, new_floor_type):
     floor_dict[Element.Name.GetValue(new_floor_type)] = new_floor_type.Id
     return floor_dict
+
+# Select elements
+def get_selected_elements():
+    selection = __revit__.ActiveUIDocument # user selection
+    selection_ids = selection.GetElementIds()
+    selection_size = selection_ids.Count
+    if not selection_ids:
+        TaskDialog.Show('MakeFloors', 'No Elements Selected.')
+        __window__.Close()
+        sys.exit(0)
+    else:
+        return selection_ids
 
 main()
 
