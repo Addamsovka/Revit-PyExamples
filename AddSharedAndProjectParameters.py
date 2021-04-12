@@ -44,14 +44,12 @@ uidoc = uiapp.ActiveUIDocument
 
 # Inputs from user
 """
-Format of excel file needs to be in exact structure or next lines needs to be adjusted.
+Preferebly use with node Data.ImportExcel. One parameter in a row.
 [
   String, # parName (exapmle: Name-DE)
   String, # parGroupName (example: My New Group)
   String, # parType (exapmle: Text)
-  String, # parVisible (true)
   String, # parCaterories separeted by "," (exapmle: Generic Models, Casework, Furniture)
-  String, # parGroup (example: Text)
   String, # instance (for type parameter set: false; for instance parameter set: true)
   String, # parDescription (description of parameter)
   ]
@@ -63,11 +61,9 @@ for param in params:
     parName = param[0]  # Parameter Name
     parGroupName = param[1]  # To which group add the SharedParameter
     parType = param[2]  # ParameterType needs to be from existing list in Revit
-    parVisible = param[3]  # Will be converted to bool/ TODO not needed in this version
-    parCaterories = param[4]  # Main Categories from Revit
-    parGroup = param[5]  # Gets String / Not needed in this version
-    instance = param[6]  # Is instance? If not then Type
-    parDescription = param[7]  # Description od parameter
+    parCaterories = param[3]  # Main Categories from Revit
+    instance = param[4]  # Is instance? If not then Type
+    parDescription = param[5]  # Description od parameter
     out.append("Adding new parameter..." + parName)
     
     try:
