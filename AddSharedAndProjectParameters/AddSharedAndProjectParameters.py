@@ -42,7 +42,7 @@ Preferebly use with node Data.ImportExcel. One parameter in a row.
   String, # parName (exapmle: Name-DE)
   String, # parGroupName (example: My New Group)
   String, # parType (exapmle: Text)
-  String, # parCaterories separeted by "," (exapmle: Generic Models, Casework, Furniture)
+  String, # parCaterories separeted by ";" (exapmle: Generic Models; Casework; Furniture)
   String, # instance (for type parameter set: false; for instance parameter set: true)
   String, # parDescription (description of parameter)
   //TODO Group Parameter Under - in next version
@@ -89,7 +89,7 @@ for param in params:
         out.append("Added to shared parameters...")
 
         # Create CategorySet
-        splitList = re.split(r"\s*,\s*", parCaterories)
+        splitList = re.split(r"\s*;\s*", parCaterories)
         categorySet = CategorySet()
         for parCat in splitList:
             category = doc.Settings.Categories.Item[parCat]
