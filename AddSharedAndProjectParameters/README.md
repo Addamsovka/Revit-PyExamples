@@ -4,7 +4,7 @@ It is Python script which can be used directly in dynamo in Python block. You ca
 
 ## What to do when I want to use it as a script in Dynamo
 
-* Create Excel file, in it Sheet with name "SharedParameters" and fill sheet with desired the data (follow th structure)
+* Create Excel file, in it Sheet with name "SharedParameters" and fill sheet with desired data (follow the structure or change the order in script).
 You can name the sheet as you wish, but do not forget to change it in Dynamo as well.
 
 * Copy/Paste the code into your Dynamo
