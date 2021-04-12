@@ -11,13 +11,6 @@ import sys
 
 sys.path.append('C:\Program Files\IronPython 2.7\Lib')
 
-import System
-from System import Array
-from System.Collections.Generic import *
-
-clr.AddReference('ProtoGeometry')
-from Autodesk.DesignScript.Geometry import *
-
 clr.AddReference("RevitNodes")
 import Revit
 
