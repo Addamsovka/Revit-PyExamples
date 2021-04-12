@@ -6,7 +6,7 @@
 
 
 import clr
-
+import re
 import sys
 
 sys.path.append('C:\Program Files\IronPython 2.7\Lib')
@@ -95,7 +95,7 @@ for param in params:
         out.append("Added to shared parameters...")
 
         # Create CategorySet
-        splitList = parCaterories.split(",")
+        splitList = re.split(r"\s*,\s*", parCaterories)
         categorySet = CategorySet()
         for parCat in splitList:
             category = doc.Settings.Categories.Item[parCat]
