@@ -1,6 +1,6 @@
+# Dynamo Node Code in Python - Create Shared Parameters from string-lists (Excel) and bind them to categories as Project Parameters
 # Version Dynamo Core 2.3.0.5885
 # Version Dynamo Revit 2.3.0.7661
-# Create Shared Parameters from string-lists (Excel) and bind them to categories as Project Parameters
 # Made by Addamsovka 2021
 # Version 1.0
 
