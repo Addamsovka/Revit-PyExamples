@@ -49,7 +49,7 @@ Preferebly use with node Data.ImportExcel. One parameter in a row.
   String, # parName (exapmle: Name-DE)
   String, # parGroupName (example: My New Group)
   String, # parType (exapmle: Text)
-  String, # parCaterories separeted by "," (exapmle: Generic Models, Casework, Furniture)
+  String, # parCaterories separeted by "," (exapmle: Generic Models,Casework,Furniture) - no spaces after ,
   String, # instance (for type parameter set: false; for instance parameter set: true)
   String, # parDescription (description of parameter)
   ]
@@ -81,7 +81,10 @@ for param in params:
 
         if not externalDefinitions.Item[parName]:  # Create new Definition of shared parameter
             externalDefinitionCreationOptions = ExternalDefinitionCreationOptions(parName, parTypeOfParameter)
-            externalDefinitionCreationOptions.Description = parDescription
+            if parDescription == "":
+                parDescription = " "
+            	externalDefinitionCreationOptions.Description = parDescription
+
             externalDefinitionCreationOptions.UserModifiable = True
             externalDefinitions.Create(externalDefinitionCreationOptions)
             # Create new Shared parameter
