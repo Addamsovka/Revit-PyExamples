@@ -119,7 +119,7 @@ for param in params:
         docBinding.Insert(externalDefinitions.Item[parName], binding, bipGroup)
         TransactionManager.Instance.TransactionTaskDone()
         
-        out.append("Added -" + parName + " to group " + parGroupName + " with description: " + parDescription + " as " + parType + ".")
+        out.append("Added -" + parName + " to group " + parGroupName + " as " + parType + ".")
 
     except AttributeError:
         out.append("Attribute was not added" + parType + ". Please check data if correct.")
