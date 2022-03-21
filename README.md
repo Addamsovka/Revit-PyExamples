@@ -1,4 +1,4 @@
-# Revit-Tools
+# Revit-PyExamples
 
-Welcome in this REPO.
-You can find all info in README for each script in their folder.
+This is a basic collection of examples of python inside nodes.
+They are meant to be pasted in a Dynamo Python Script nodes and edited based on user needs.
